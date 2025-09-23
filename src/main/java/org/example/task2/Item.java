@@ -1,6 +1,5 @@
 package org.example.task2;
 
-
 public class Item {
     private final long id;
     private String name;
@@ -24,7 +23,6 @@ public class Item {
         return this.price;
     }
 
-    // Optional mutators if needed later (kept encapsulated)
     public void setName(String name) {
         this.name = name;
     }
