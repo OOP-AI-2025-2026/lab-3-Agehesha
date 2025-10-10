@@ -1,6 +1,5 @@
 
 public class Box {
-
 private double length;
 private double width;
 private double height;
@@ -12,12 +11,9 @@ setWidth(width);
 setHeight(height);
 }
 
-
-
 public double getLength() { return length; }
 public double getWidth() { return width; }
 public double getHeight() { return height; }
-
 
 
 private void setLength(double length) {
@@ -45,21 +41,17 @@ throw new IllegalArgumentException(name + " must be > 0");
 }
 
 
-
 public double surfaceArea() {
-
 return 2.0 * (length * width + length * height + width * height);
 }
 
 
 public double lateralSurfaceArea() {
-
 return 2.0 * (length + width) * height;
 }
 
 
 public double volume() {
-
 return length * width * height;
 }
 }
