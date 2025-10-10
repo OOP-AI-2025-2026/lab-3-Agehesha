@@ -1,3 +1,5 @@
+package org.example.test1;
+
 public class Main {
 public static void main(String[] args) {
 Box box = new Box(2.5, 1.2, 0.8);
