@@ -1,14 +1,10 @@
-package ua.opnu;
+public class Main {
+public static void main(String[] args) {
+Box box = new Box(2.5, 1.2, 0.8);
 
-public class MainBox {
-    public static void main(String[] args) {
-        try {
-            Box b = new Box(2.0, 3.0, 4.0);
-            System.out.println("Surface area = " + b.getSurfaceArea());
-            System.out.println("Lateral surface area = " + b.getLateralSurfaceArea());
-            System.out.println("Volume = " + b.getVolume());
-        } catch (IllegalArgumentException e) {
-            System.out.println("Input error: " + e.getMessage());
-        }
-    }
+
+System.out.printf("Surface area: %.4f\n", box.surfaceArea());
+System.out.printf("Lateral surface area: %.4f\n", box.lateralSurfaceArea());
+System.out.printf("Volume: %.4f\n", box.volume());
+}
 }
