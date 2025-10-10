@@ -1,75 +1,62 @@
-package org.example.task2;
+package ua.opnu;
 
-import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
 
 public class Cart {
-  private final Item[] contents;
-  private int size;
+    // Весь стан кошика — тут. Жодних масивів/індексів.
+    private final Map<Item, Integer> lines = new LinkedHashMap<>();
 
-  public Cart(int capacity) {
-    if (capacity <= 0) {
-      capacity = 1;
+    public void add(Item item) {
+        add(item, 1);
     }
-    this.contents = new Item[capacity];
-    this.size = 0;
-  }
 
-  public boolean add(Item item) {
-    if (item == null || isFull()) {
-      return false;
+    public void add(Item item, int qty) {
+        if (item == null) throw new IllegalArgumentException("item is null");
+        if (qty <= 0) throw new IllegalArgumentException("qty must be > 0");
+        lines.merge(item, qty, Integer::sum);
     }
-    this.contents[this.size] = item;
-    this.size++;
-    return true;
-  }
 
-  public boolean removeById(long id) {
-    if (this.size == 0) {
-      return false;
+    public void remove(Item item) {
+        if (item == null) return;
+        lines.remove(item);
     }
-    int idx = findIndexById(id);
-    if (idx == -1) {
-      return false;
+
+    public double getTotal() {
+        double sum = 0.0;
+        for (Map.Entry<Item, Integer> e : lines.entrySet()) {
+            sum += e.getKey().getPrice() * e.getValue();
+        }
+        return sum;
     }
-    shiftLeftFrom(idx);
-    return true;
-  }
 
-  public Item[] getSnapshot() {
-    return Arrays.copyOf(this.contents, this.size);
-  }
-
-  public boolean isFull() {
-    return this.size == this.contents.length;
-  }
-
-  public boolean isEmpty() {
-    return this.size == 0;
-  }
-
-  public int getSize() {
-    return this.size;
-  }
-
-  private int findIndexById(long id) {
-    for (int i = 0; i < this.size; i++) {
-      if (this.contents[i].getId() == id) {
-        return i;
-      }
+    public int getItemCount() {
+        int count = 0;
+        for (int q : lines.values()) count += q;
+        return count;
     }
-    return -1;
-  }
 
-  private void shiftLeftFrom(int index) {
-    for (int i = index; i < this.size - 1; i++) {
-      this.contents[i] = this.contents[i + 1];
+    public List<String> viewLines() {
+        List<String> out = new ArrayList<>();
+        for (Map.Entry<Item, Integer> e : lines.entrySet()) {
+            out.add(e.getKey().getName() + " x " + e.getValue());
+        }
+        return Collections.unmodifiableList(out);
     }
-    this.contents[this.size - 1] = null;
-    this.size--;
-  }
 
-  @Override
-  public String toString() {
-    return "Cart{contents=" + Arrays.toString(getSnapshot()) + "}\n";
-  }
+    public void clear() {
+        lines.clear();
+    }
+
+  
+    Map<Item, Integer> snapshot() {
+        return new LinkedHashMap<>(lines);
+    }
+
+    public boolean isEmpty() {
+        return lines.isEmpty();
+    }
 }
