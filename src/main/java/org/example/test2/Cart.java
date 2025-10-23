@@ -1,67 +1,57 @@
+package org.example.task2;
 
-import java.math.BigDecimal;
-import java.util.*;
-
+import java.util.Arrays;
+import java.util.NoSuchElementException;
 
 public class Cart {
+    private final Item[] items;
+    private int size;
 
-private final Map<Item, Integer> lines = new LinkedHashMap<>();
+    public Cart(Item[] storage) {
+        if (storage == null || storage.length == 0)
+            throw new IllegalArgumentException("initial storage must be non-empty");
+        this.items = storage;
+        this.size = 0;
+    }
 
+    public void add(Item item) {
+        if (item == null) throw new IllegalArgumentException("item is null");
+        if (isFull()) throw new IllegalStateException("cart is full");
+        this.items[this.size++] = item;
+    }
 
-public void add(Item item, int quantity) {
-validate(item, quantity);
-int old = lines.getOrDefault(item, 0);
-lines.put(item, old + quantity);
-}
+    public void removeById(long id) {
+        if (this.size == 0) return;
+        int idx = indexOfId(id);
+        if (idx == -1) return;
+        for (int i = idx; i < this.size - 1; i++) items[i] = items[i + 1];
+        items[--size] = null;
+    }
 
+    private int indexOfId(long id) {
+        for (int i = 0; i < this.size; i++) if (items[i].getId() == id) return i;
+        return -1;
+    }
 
-public void setQuantity(Item item, int quantity) {
-validate(item, quantity);
-if (quantity == 0) {
-lines.remove(item);
-} else {
-lines.put(item, quantity);
-}
-}
+    public boolean isFull()  { return this.size == items.length; }
+    public boolean isEmpty() { return this.size == 0; }
+    public int size()        { return this.size; }
 
+    public Item[] toArray() { return Arrays.copyOf(items, size); }
 
-public void remove(Item item) {
-if (item == null) return;
-lines.remove(item);
-}
+    public double total() {
+        double s = 0;
+        for (int i = 0; i < size; i++) s += items[i].getPrice();
+        return s;
+    }
 
+    public Item peekLast() {
+        if (size == 0) throw new NoSuchElementException("cart is empty");
+        return items[size - 1];
+    }
 
-public void clear() { lines.clear(); }
-
-
-public boolean isEmpty() { return lines.isEmpty(); }
-
-
-public int uniqueItems() { return lines.size(); }
-
-
-public BigDecimal total() {
-BigDecimal sum = BigDecimal.ZERO;
-for (Map.Entry<Item, Integer> e : lines.entrySet()) {
-BigDecimal line = e.getKey().getPrice().multiply(BigDecimal.valueOf(e.getValue()));
-sum = sum.add(line);
-}
-return sum;
-}
-
-
-
-List<String> out = new ArrayList<>();
-for (Map.Entry<Item, Integer> e : lines.entrySet()) {
-out.add(e.getKey().getName() + " x" + e.getValue() + " = " +
-e.getKey().getPrice().multiply(BigDecimal.valueOf(e.getValue())));
-}
-return Collections.unmodifiableList(out);
-}
-
-
-private void validate(Item item, int quantity) {
-if (item == null) throw new IllegalArgumentException("item is null");
-if (quantity < 0) throw new IllegalArgumentException("quantity < 0");
-}
+    @Override
+    public String toString() {
+        return "Cart{contents=" + Arrays.toString(toArray()) + "}\n";
+    }
 }
