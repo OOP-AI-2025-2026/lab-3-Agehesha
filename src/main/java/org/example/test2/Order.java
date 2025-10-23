@@ -1,86 +1,28 @@
+package org.example.task2;
 
-private final String orderId;
-private final String customer;
-private final LocalDateTime createdAt;
-private final List<OrderLine> lines;
-private Status status;
+public class Order {
+    private final long id;
+    private final String customer;
 
+    public Order(long id, String customer) {
+        if (id <= 0) throw new IllegalArgumentException("id must be > 0");
+        if (customer == null || customer.isBlank()) throw new IllegalArgumentException("customer is required");
+        this.id = id;
+        this.customer = customer;
+    }
 
-public Order(String orderId, String customer, List<OrderLine> lines) {
-if (orderId == null || orderId.isBlank()) throw new IllegalArgumentException("orderId blank");
-if (customer == null || customer.isBlank()) throw new IllegalArgumentException("customer blank");
-if (lines == null || lines.isEmpty()) throw new IllegalArgumentException("empty order lines");
-this.orderId = orderId;
-this.customer = customer;
-this.createdAt = LocalDateTime.now();
-this.lines = new ArrayList<>(lines); 
-this.status = Status.NEW;
-}
-
-
-
-public static Order fromCart(String orderId, String customer, Cart cart) {
-if (cart == null || cart.isEmpty()) throw new IllegalArgumentException("cart empty");
-List<OrderLine> copy = new ArrayList<>();
-for (String s : cart.snapshotView()) {
-copy.add(new OrderLine(s));
-}
-return new Order(orderId, customer, copy);
-}
-
-
-public String getOrderId() { return orderId; }
-public String getCustomer() { return customer; }
-public LocalDateTime getCreatedAt() { return createdAt; }
-public Status getStatus() { return status; }
-
-
-public List<String> viewLines() {
-List<String> v = new ArrayList<>();
-for (OrderLine l : lines) v.add(l.readonlyText());
-return Collections.unmodifiableList(v);
-}
-
-
-public BigDecimal total() {
-
-BigDecimal sum = BigDecimal.ZERO;
-for (OrderLine l : lines) {
-String t = l.readonlyText();
-int idx = t.lastIndexOf('=');
-if (idx >= 0 && idx + 1 < t.length()) {
-String num = t.substring(idx + 1).trim();
-try {
-sum = sum.add(new BigDecimal(num));
-} catch (NumberFormatException ignore) { /* noop */ }
-}
-}
-return sum;
-}
-
-
-public void pay() {
-ensure(Status.NEW, "pay");
-this.status = Status.PAID;
-}
-
-
-public void cancel() {
-ensure(Status.NEW, "cancel");
-this.status = Status.CANCELED;
-}
-
-
-private void ensure(Status expected, String action) {
-if (this.status != expected) {
-throw new IllegalStateException("Cannot " + action + " when status=" + this.status);
-}
-}
-
-
-private static final class OrderLine {
-private final String text;
-private OrderLine(String text) { this.text = text; }
-private String readonlyText() { return text; }
-}
+    public String formOrderBill(Cart cart) {
+        StringBuilder b = new StringBuilder()
+            .append("Order number ").append(id)
+            .append(" for customer ").append(customer)
+            .append("\n------------------\n");
+        for (Item it : cart.toArray()) {
+            b.append("Item id: ").append(it.getId())
+             .append(" name: ").append(it.getName())
+             .append(" price: ").append(it.getPrice())
+             .append("\n");
+        }
+        b.append("------------------\nTotal sum: ").append(cart.total());
+        return b.toString();
+    }
 }
